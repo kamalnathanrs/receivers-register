@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.9.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.devbank</groupId>
+	<artifactId>receivers-register</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>receivers-register</name>
+	<description>The Receivers Register maintains information required to transfer money</description>
+	<properties>
+		<java.version>11</java.version>
+		<openapi-generator-version>4.2.2</openapi-generator-version>
+		<spring-cloud.version>Greenwich.SR5</spring-cloud.version>
+		<springfox.version>3.0.0</springfox.version>
+		<validation-api.version>2.0.1.Final</validation-api.version>
+		<javassist.version>3.24.0-GA</javassist.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>${springfox.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>${springfox.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>${javassist.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator-annotation-processor</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>io.github.openfeign</groupId>
+					<artifactId>feign-hystrix</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.querydsl</groupId>
+			<artifactId>querydsl-apt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.1.5.Final</version>
+		</dependency>
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>1.1.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
+				<configuration>
+					<forceJavacCompilerUse>true</forceJavacCompilerUse>
+					<compilerVersion>${java.version}</compilerVersion>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.mysema.maven</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.1.3</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/generated-sources</outputDirectory>
+							<processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>${openapi-generator-version}</version>
+				<configuration>
+					<generatorName>spring</generatorName>
+					<library>spring-cloud</library>
+					<!-- Generate only the model classes -->
+					<generateApis>true</generateApis>
+
+					<enablePostProcessFile>true</enablePostProcessFile>
+					<!-- Skip the execution if the source file is older than the output folder (false by default) -->
+					<skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+
+					<!-- Disables generation of API unit test classes -->
+					<generateApiTests>true</generateApiTests>
+
+					<!-- add the output directory to the project as a source root (true by default) -->
+					<addCompileSourceRoot>true</addCompileSourceRoot>
+
+					<!-- see issue https://github.com/OpenAPITools/openapi-generator/issues/2901 -->
+					<templateDirectory>${project.basedir}/src/main/resources/openapi/templates/JavaSpring</templateDirectory>
+					<output>target/generated-sources</output>
+
+					<!-- Don't generate pom.xml, README.md etc -->
+					<generateSupportingFiles>false</generateSupportingFiles>
+					<configOptions>
+						<!-- See https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/spring.md for all config options -->
+
+						<!-- Generate only the model classes -->
+						<generateApis>false</generateApis>
+						<!-- Whether to generate only API interface stubs without the server files. -->
+						<interfaceOnly>false</interfaceOnly>
+						<!-- Use tags for creating interface and controller classnames (instead of taking the first path entry) -->
+						<useTags>true</useTags>
+						<!-- Whether to generate default implementations for java8 interfaces -->
+						<skipDefaultInterface>true</skipDefaultInterface>
+
+						<!-- Option. Use Java8 classes instead of third party equivalents.
+                        I.e. Use Java 8 classes such as Base64 instead of various third party libraries as needed.
+                        Please note that the value below will be set to true if <dateLibrary>java8</dateLibrary> is used
+                        Also 'false' disables default implementation of interfaces. -->
+						<java8>true</java8>
+
+						<!-- Java 8 native JSR310 (preferred for jdk 1.8+) - note: this also sets "java8" to true -->
+						<dateLibrary>java8</dateLibrary>
+						<!-- Setting below to true will make "format: email" output an @Email validation annotation.
+                        The import of org.hibernate.validator.constraints.UniqueElements will also be added to ALL generated model classes-->
+						<performBeanValidation>true</performBeanValidation>
+						<useBeanValidation>true</useBeanValidation>
+					</configOptions>
+				</configuration>
+				<executions>
+					<execution>
+						<id>receivers-register</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/public/receivers-register.yaml</inputSpec>
+							<configOptions>
+								<apiPackage>com.devbank.receiversregister.delivery.rest.api</apiPackage>
+								<modelPackage>com.devbank.receiversregister.delivery.rest.dto</modelPackage>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -1,0 +1,10 @@
+package {{package}};
+
+import org.springframework.cloud.openfeign.FeignClient;
+
+{{=<% %>=}}
+@FeignClient(name="${<%title%>.name:<%classname%>}", url="${<%title%>.url:<%basePath%>}")
+<%={{ }}=%>
+public interface {{classname}}Client extends {{package}}.{{classname}} {
+
+}

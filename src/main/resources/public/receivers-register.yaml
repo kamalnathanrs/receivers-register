@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  title: Receiver Register - OpenAPI 3.0
+  description: |
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/receivers-register
+tags:
+  - name: User Receiver
+    description: Resources related to maintaining receivers
+
+paths:
+  /bank-user/{user-id}/receiver:
+    post:
+      tags:
+        - User Receiver
+      summary: Adds an new receiver
+      operationId: addReceiver
+      parameters:
+        - name: user-id
+          in: path
+          description: 'The bank user-id'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Receiver object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Receiver'
+      responses:
+        '201':
+          description: Added a new receiver to the bank user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receiver'
+  /bank-user/{user-id}/receiver/{receiver-id}:
+    put:
+      tags:
+        - User Receiver
+      summary: Updates an exising receiver.
+      operationId: updateReceiver
+      parameters:
+        - name: user-id
+          in: path
+          description: 'The bank user-id'
+          required: true
+          schema:
+            type: string
+        - name: receiver-id
+          in: path
+          description: 'The id of receiver whose information needs to be updated.'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/Receiver'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receiver'
+    delete:
+      tags:
+        - User Receiver
+      summary: Deletes an receiver
+      operationId: deleteReceiver
+      parameters:
+        - name: user-id
+          in: path
+          description: 'The bank user-id'
+          required: true
+          schema:
+            type: string
+        - name: receiver-id
+          in: path
+          description: 'The id of receiver whose information needs to be deleted.'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: The receiver successfully deleted.
+components:
+  schemas:
+    Receiver:
+      type: object
+      required:
+        - name
+        - IBAN
+        - currency
+      properties:
+        receiverId:
+          type: integer
+          format: int64
+          example: 1
+          readOnly: true
+        name:
+          type: string
+          description: Name of the receiver.
+          example: John James
+        fatherName:
+          type: string
+          description: Father's name of the receiver.
+          example: Jim James
+        email:
+          type: string
+          example: john@example.com
+        mobile:
+          type: string
+          description: Mobile number of the receiver including country code.
+          example: '004712345678'
+        IBAN:
+          type: string
+          description: IBAN value of the receiver.
+          example: 'NO 93 8601 1117947'
+        currency:
+          type: string
+          enum: [ EUR , DKK , NOK , USD  ]
+          example: "NOK"
+          description: A list of currency types to send
