@@ -1,0 +1,141 @@
+{
+	"info": {
+		"_postman_id": "9a489c8e-9aef-4249-8364-ee29e0987ff6",
+		"name": "Receivers Register",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Receiver",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"John James\",\r\n  \"fatherName\": \"Jim James\",\r\n  \"email\": \"john@example.com\",\r\n  \"mobile\": \"004712345678\",\r\n  \"IBAN\": \"NO 93 8601 1117949\",\r\n  \"currency\": \"NOK\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/receivers-register/bank-user/73a79008-ebd6-4921-ad82-e5062e59a472/receiver",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"receivers-register",
+						"bank-user",
+						"73a79008-ebd6-4921-ad82-e5062e59a472",
+						"receiver"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Receiver",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"John James 1\",\r\n  \"fatherName\": \"Jim James\",\r\n  \"email\": \"john@example.com\",\r\n  \"mobile\": \"004712345678\",\r\n  \"IBAN\": \"NO 93 8601 1117947\",\r\n  \"currency\": \"NOK\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/receivers-register/bank-user/73a79008-ebd6-4921-ad82-e5062e59a472/receiver/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"receivers-register",
+						"bank-user",
+						"73a79008-ebd6-4921-ad82-e5062e59a472",
+						"receiver",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List  User Receivers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"John James 1\",\r\n  \"fatherName\": \"Jim James\",\r\n  \"email\": \"john@example.com\",\r\n  \"mobile\": \"004712345678\",\r\n  \"IBAN\": \"NO 93 8601 1117947\",\r\n  \"currency\": \"NOK\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/receivers-register/bank-user/73a79008-ebd6-4921-ad82-e5062e59a471/receivers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"receivers-register",
+						"bank-user",
+						"73a79008-ebd6-4921-ad82-e5062e59a471",
+						"receivers"
+					],
+					"query": [
+						{
+							"key": "pageNumber",
+							"value": "0",
+							"disabled": true
+						},
+						{
+							"key": "entries",
+							"value": "10",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Receiver",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/receivers-register/bank-user/73a79008-ebd6-4921-ad82-e5062e59a472/receiver/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"receivers-register",
+						"bank-user",
+						"73a79008-ebd6-4921-ad82-e5062e59a472",
+						"receiver",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
