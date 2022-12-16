@@ -1,6 +1,7 @@
 package com.devbank.receiversregister.service.receiver;
 
 import com.devbank.receiversregister.delivery.rest.dto.Receiver;
+import com.devbank.receiversregister.delivery.rest.dto.UserReceiversResult;
 import com.devbank.receiversregister.repository.jpa.entities.BankUserEntity;
 import com.devbank.receiversregister.repository.jpa.entities.ReceiverEntity;
 import com.devbank.receiversregister.repository.jpa.entities.enumeration.CurrencyType;
@@ -8,6 +9,9 @@ import com.devbank.receiversregister.repository.jpa.repositories.BankUserReposit
 import com.devbank.receiversregister.repository.jpa.repositories.ReceiverRepository;
 import com.devbank.receiversregister.service.receiver.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,49 +24,71 @@ public class ReceiverServiceImpl implements ReceiverService {
     private final ReceiverRepository receiverRepository;
 
     @Override
-    public void addReceiver(String userId, Receiver receiverDto) {
-        BankUserEntity bankUserEntity = bankUserRepository.findByBankUserId(userId)
+    public Receiver addReceiver(String userId, Receiver receiverDto) {
+        BankUserEntity bankUserEntity = bankUserRepository.findByUserId(userId)
                 .orElse(BankUserEntity.builder()
-                        .bankUserId(userId)
+                        .userId(userId)
                         .build());
         if (bankUserRepository.getCountOfReceiverByIBAN(userId, receiverDto.getIBAN()) > 0) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "A Receiver already exists for the given IBAN.");
         }
 
-        ReceiverEntity receiverEntity = ReceiverEntity.builder()
-                .name(receiverDto.getName())
-                .fatherName(receiverDto.getFatherName())
-                .mobile(receiverDto.getMobile())
-                .email(receiverDto.getEmail())
-                .IBAN(receiverDto.getIBAN())
-                .currencyType(CurrencyType.valueOf(receiverDto.getCurrency().name()))
-                .build();
-
+        ReceiverEntity receiverEntity = mapFromDto(null, receiverDto);
         bankUserEntity.addReceiver(receiverEntity);
+        bankUserRepository.saveAndFlush(bankUserEntity);
+        return mapToDto(receiverEntity);
+    }
+
+    @Override
+    public Receiver updateReceiver(String userId, Long receiverId, Receiver receiverDto) {
+        ReceiverEntity receiverEntity = getUserReceiver(userId, receiverId);
+        receiverEntity = mapFromDto(receiverEntity, receiverDto);
+        return mapToDto(receiverRepository.save(receiverEntity));
+    }
+
+    @Override
+    public UserReceiversResult listUserReceivers(String userId, Integer pageNumber, Integer entries) {
+        Pageable pageRequest = PageRequest.of(pageNumber, entries);
+        Page<ReceiverEntity> userReceiversPage = receiverRepository.findAllByBankUser_UserId(userId, pageRequest);
+        return new UserReceiversResult()
+                .resultsFound(Math.toIntExact(userReceiversPage.getTotalElements()))
+                .resultsFetched(userReceiversPage.getNumberOfElements())
+                .receivers(userReceiversPage.map(this::mapToDto).getContent());
     }
 
     @Override
     public void deleteReceiver(String userId, Long receiverId) {
-        BankUserEntity bankUserEntity = bankUserRepository.findByBankUserId(userId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, format("Bank user with id %s does not exist.", userId)));
-        ReceiverEntity receiverEntity = receiverRepository.findById(receiverId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, format("Receiver with id %s does not exist.", receiverId)));
-
-        bankUserEntity.removeReceiver(receiverEntity);
+        ReceiverEntity receiverEntity = getUserReceiver(userId, receiverId);
+        receiverRepository.delete(receiverEntity);
     }
 
-    @Override
-    public void updateReceiver(String userId, Long receiverId, Receiver receiverDto) {
-        BankUserEntity bankUserEntity = bankUserRepository.findByBankUserId(userId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, format("Bank user with id %s does not exist.", userId)));
-        ReceiverEntity receiverEntity = receiverRepository.findById(receiverId)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, format("Receiver with id %s does not exist.", receiverId)));
+    private ReceiverEntity getUserReceiver(String userId, Long receiverId) {
+        return receiverRepository.findByIdAndBankUser_UserId(receiverId, userId)
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, format("Record not found with receiverId %s and userId %s.", receiverId, userId)));
+    }
+
+    private ReceiverEntity mapFromDto(ReceiverEntity receiverEntity, Receiver receiverDto) {
+        if(receiverEntity == null) {
+            receiverEntity = new ReceiverEntity();
+        }
         receiverEntity.setName(receiverDto.getName());
         receiverEntity.setFatherName(receiverDto.getFatherName());
         receiverEntity.setMobile(receiverDto.getMobile());
         receiverEntity.setEmail(receiverDto.getEmail());
         receiverEntity.setIBAN(receiverDto.getIBAN());
         receiverEntity.setCurrencyType(CurrencyType.valueOf(receiverDto.getCurrency().name()));
+        return receiverEntity;
+    }
+
+    private Receiver mapToDto(ReceiverEntity receiverEntity) {
+        return new Receiver()
+                .receiverId(receiverEntity.getId())
+                .name(receiverEntity.getName())
+                .fatherName(receiverEntity.getFatherName())
+                .mobile(receiverEntity.getMobile())
+                .email(receiverEntity.getEmail())
+                .IBAN(receiverEntity.getIBAN())
+                .currency(Receiver.CurrencyEnum.fromValue(receiverEntity.getCurrencyType().name()));
     }
 
 }

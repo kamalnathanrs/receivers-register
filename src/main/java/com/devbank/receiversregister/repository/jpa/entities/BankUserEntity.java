@@ -3,8 +3,8 @@ package com.devbank.receiversregister.repository.jpa.entities;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "BANK_USER")
@@ -17,24 +17,23 @@ public class BankUserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "bank_user_id", nullable = false, unique = true)
-    private String bankUserId;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private String userId;
 
     @ToString.Exclude
-    @Setter(AccessLevel.NONE)
-    @Getter(AccessLevel.NONE)
-    @ManyToMany
-    @JoinTable(name = "user_receivers",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_USER_RECEIVERS_USER_ID")),
-            inverseJoinColumns = @JoinColumn(name = "receiver_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_USER_RECEIVERS_RECEIVER_ID")))
-    private Set<ReceiverEntity> receivers = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "bankUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceiverEntity> receivers;
 
-    public boolean addReceiver(ReceiverEntity receiver) {
-        return receivers.add(receiver);
+    public void addReceiver(ReceiverEntity receiver) {
+        receiver.setBankUser(this);
+        getReceivers().add(receiver);
     }
 
-    public boolean removeReceiver(ReceiverEntity receiver) {
-        return receivers.remove(receiver);
+    public List<ReceiverEntity> getReceivers() {
+        if (receivers == null) {
+            receivers = new ArrayList<>();
+        }
+        return receivers;
     }
 
 }

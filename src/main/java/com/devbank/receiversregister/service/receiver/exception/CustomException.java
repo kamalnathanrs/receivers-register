@@ -7,11 +7,8 @@ public class CustomException extends RuntimeException {
     @Getter
     private final HttpStatus httpStatus;
 
-    @Getter
-    private final String msg;
-
     public CustomException(HttpStatus httpStatus, String message) {
+        super(message);
         this.httpStatus = httpStatus;
-        this.msg = message;
     }
 }

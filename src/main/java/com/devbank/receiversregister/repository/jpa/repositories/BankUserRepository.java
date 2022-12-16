@@ -14,11 +14,11 @@ import java.util.Optional;
 @Transactional
 public interface BankUserRepository extends JpaRepository<BankUserEntity, Long>, QuerydslPredicateExecutor<BankUserEntity> {
 
-    Optional<BankUserEntity> findByBankUserId(String bankUserId);
+    Optional<BankUserEntity> findByUserId(String bankUserId);
 
     @Query("SELECT COUNT(*) FROM BankUserEntity bankUser " +
             "INNER JOIN bankUser.receivers userReceivers " +
-            "WHERE bankUser.bankUserId = :bankUserId AND userReceivers.IBAN = :IBAN ")
-    int getCountOfReceiverByIBAN(String bankUserId, String IBAN);
+            "WHERE bankUser.userId = :userId AND userReceivers.IBAN = :IBAN ")
+    int getCountOfReceiverByIBAN(String userId, String IBAN);
 
 }

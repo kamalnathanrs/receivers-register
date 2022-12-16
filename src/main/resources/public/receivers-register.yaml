@@ -90,6 +90,43 @@ paths:
       responses:
         '204':
           description: The receiver successfully deleted.
+  /bank-user/{user-id}/receivers:
+    get:
+      tags:
+        - User Receiver
+      summary: Fetch User receivers. Result will be empty if given userId does not exist in system.
+      operationId: listUserReceivers
+      parameters:
+        - name: user-id
+          in: path
+          description: 'The bank user-id'
+          required: true
+          schema:
+            type: string
+        - name: pageNumber
+          in: query
+          description: The page number offset for the set of results returned.
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+        - name: entries
+          in: query
+          description: The number of entries to return from the total result set. The returned entries are offset by the page-number * entries values.
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 10
+            maximum: 1000
+      responses:
+        '201':
+          description: Added a new receiver to the bank user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReceiversResult'
 components:
   schemas:
     Receiver:
@@ -128,3 +165,19 @@ components:
           enum: [ EUR , DKK , NOK , USD  ]
           example: "NOK"
           description: A list of currency types to send
+    UserReceiversResult:
+      type: object
+      properties:
+        resultsFound:
+          type: integer
+          format: int32
+          description: Total number of search results found for the given criteria.
+        resultsFetched:
+          type: integer
+          format: int32
+          description: Number of results fetched.
+        receivers:
+          type: array
+          description: A list of Receivers found for the criteria.
+          items:
+            $ref: "#/components/schemas/Receiver"

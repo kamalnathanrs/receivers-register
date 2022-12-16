@@ -4,14 +4,13 @@ import com.devbank.receiversregister.repository.jpa.entities.enumeration.Currenc
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name = "RECEIVER")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ReceiverEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +36,7 @@ public class ReceiverEntity {
     private CurrencyType currencyType;
 
     @ToString.Exclude
-    @ManyToMany(mappedBy = "receivers", fetch = FetchType.LAZY)
-    private Set<BankUserEntity> bankUsers;
+    @ManyToOne
+    @JoinColumn(name = "fk_bank_user_id", nullable = false, foreignKey = @ForeignKey(name = "FK_RECEIVER_BANK_USER_ID"))
+    private BankUserEntity bankUser;
 }
