@@ -4,10 +4,12 @@ import com.devbank.receiversregister.delivery.rest.dto.Receiver;
 import com.devbank.receiversregister.delivery.rest.dto.UserReceiversResult;
 import com.devbank.receiversregister.repository.jpa.repositories.BankUserRepository;
 import com.devbank.receiversregister.repository.jpa.repositories.ReceiverRepository;
+import com.devbank.receiversregister.service.receiver.exception.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.annotation.Resource;
@@ -31,7 +33,7 @@ class UTReceiverServiceImplTest {
     }
 
     @Test
-    void addReceiver() {
+    void addReceiver_success() {
         // prepare
         String userId = "73a79008-ebd6-4921-ad82-e5062e59a471";
         Receiver receiverRequest = new Receiver()
@@ -56,10 +58,35 @@ class UTReceiverServiceImplTest {
     }
 
     @Test
+    void addReceiver_whenReceiverAlreadyExistsByIBAN_thenFail() {
+        // prepare
+        String userId = "73a79008-ebd6-4921-ad82-e5062e59a471";
+        Receiver addedReceiver = createReceiver(userId, "NO 93 8601 1117949");
+
+        Receiver receiverRequest = new Receiver()
+                .name("John James")
+                .fatherName("Jim James")
+                .email("test@example.com")
+                .mobile("004712345678")
+                .IBAN(addedReceiver.getIBAN())
+                .currency(Receiver.CurrencyEnum.NOK);
+
+        // execute
+        try{
+            receiverServiceTest.addReceiver(userId, receiverRequest);
+            fail("Excepted exception when receiver exists with same IBAN.");
+        } catch (CustomException ce) {
+            // verify
+            assertEquals(HttpStatus.BAD_REQUEST, ce.getHttpStatus());
+            assertEquals("A Receiver already exists for the given IBAN.", ce.getMessage());
+        }
+    }
+
+    @Test
     void updateReceiver() {
         // prepare
         String userId = "73a79008-ebd6-4921-ad82-e5062e59a471";
-        Receiver addedReceiver = createReceiver(userId);
+        Receiver receiverToUpdate = createReceiver(userId, "NO 93 8601 1117949");
 
         // Update receiver
         Receiver updateReceiverRequest = new Receiver()
@@ -71,7 +98,7 @@ class UTReceiverServiceImplTest {
                 .currency(Receiver.CurrencyEnum.DKK);
 
         // Execute
-        Receiver result = receiverServiceTest.updateReceiver(userId, addedReceiver.getReceiverId(), updateReceiverRequest);
+        Receiver result = receiverServiceTest.updateReceiver(userId, receiverToUpdate.getReceiverId(), updateReceiverRequest);
 
         // verify
         assertNotNull(result);
@@ -84,10 +111,36 @@ class UTReceiverServiceImplTest {
     }
 
     @Test
+    void updateReceiver_whenAnotherReceiverAlreadyExistsByIBAN_thenFail() {
+        // prepare
+        String userId = "73a79008-ebd6-4921-ad82-e5062e59a471";
+        Receiver existingReceiver = createReceiver(userId, "NO 93 8601 1117949");
+        Receiver receiverToUpdate = createReceiver(userId, "no 93 8601 1117950");
+
+        Receiver updateReceiverRequest = new Receiver()
+                .name("John James")
+                .fatherName("Jim James")
+                .email("test@example.com")
+                .mobile("004712345678")
+                .IBAN(existingReceiver.getIBAN())
+                .currency(Receiver.CurrencyEnum.NOK);
+
+        // execute
+        try{
+            receiverServiceTest.updateReceiver(userId, receiverToUpdate.getReceiverId(), updateReceiverRequest);
+            fail("Excepted exception when another receiver exists with same IBAN.");
+        } catch (CustomException ce) {
+            // verify
+            assertEquals(HttpStatus.BAD_REQUEST, ce.getHttpStatus());
+            assertEquals("A Receiver already exists for the given IBAN.", ce.getMessage());
+        }
+    }
+
+    @Test
     void listUserReceivers() {
         // prepare
         String userId = "73a79008-ebd6-4921-ad82-e5062e59a471";
-        createReceiver(userId);
+        createReceiver(userId, "NO 93 8601 1117949");
 
         // Execute
         UserReceiversResult result = receiverServiceTest.listUserReceivers(userId, 0, 10);
@@ -107,19 +160,19 @@ class UTReceiverServiceImplTest {
     void deleteReceiver() {
         // prepare
         String userId = "73a79008-ebd6-4921-ad82-e5062e59a471";
-        Receiver addedReceiver = createReceiver(userId);
+        Receiver addedReceiver = createReceiver(userId, "NO 93 8601 1117949");
 
         // execute
         receiverServiceTest.deleteReceiver(userId, addedReceiver.getReceiverId());
     }
 
-    private Receiver createReceiver(String userId) {
+    private Receiver createReceiver(String userId, String IBAN) {
         Receiver createReceiverRequest = new Receiver()
                 .name("John James")
                 .fatherName("Jim James")
                 .email("test@example.com")
                 .mobile("004712345678")
-                .IBAN("NO 93 8601 1117949")
+                .IBAN(IBAN)
                 .currency(Receiver.CurrencyEnum.NOK);
         return receiverServiceTest.addReceiver(userId, createReceiverRequest);
     }

@@ -36,4 +36,10 @@ public class BankUserEntity {
         return receivers;
     }
 
+    public ReceiverEntity getReceiverByIBAN(String iban) {
+        return getReceivers().stream()
+                .filter(re -> re.getIBAN().equalsIgnoreCase(iban))
+                .findFirst()
+                .orElse(null);
+    }
 }

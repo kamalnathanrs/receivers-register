@@ -29,19 +29,26 @@ public class ReceiverServiceImpl implements ReceiverService {
                 .orElse(BankUserEntity.builder()
                         .userId(userId)
                         .build());
-        if (bankUserRepository.getCountOfReceiverByIBAN(userId, receiverDto.getIBAN()) > 0) {
+
+        // When creating new receiver, verify that exists no other receiver with same IBAN for given bank user.
+        if (receiverRepository.getCountOfUserReceiverByIBANAndReceiverNotMatching(userId, receiverDto.getIBAN(), null) > 0) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "A Receiver already exists for the given IBAN.");
         }
 
         ReceiverEntity receiverEntity = mapFromDto(null, receiverDto);
         bankUserEntity.addReceiver(receiverEntity);
-        bankUserRepository.saveAndFlush(bankUserEntity);
-        return mapToDto(receiverEntity);
+        bankUserEntity = bankUserRepository.saveAndFlush(bankUserEntity);
+        return mapToDto(bankUserEntity.getReceiverByIBAN(receiverEntity.getIBAN()));
     }
 
     @Override
     public Receiver updateReceiver(String userId, Long receiverId, Receiver receiverDto) {
         ReceiverEntity receiverEntity = getUserReceiver(userId, receiverId);
+
+        // When updating existing receiver, verify that exists no other receiver(skipping current receiver) with same IBAN for given bank user.
+        if (receiverRepository.getCountOfUserReceiverByIBANAndReceiverNotMatching(userId, receiverDto.getIBAN(), receiverId) > 0) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "A Receiver already exists for the given IBAN.");
+        }
         receiverEntity = mapFromDto(receiverEntity, receiverDto);
         return mapToDto(receiverRepository.save(receiverEntity));
     }
