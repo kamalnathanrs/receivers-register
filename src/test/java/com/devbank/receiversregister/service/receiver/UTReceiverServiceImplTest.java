@@ -141,6 +141,8 @@ class UTReceiverServiceImplTest {
         // prepare
         String userId = "73a79008-ebd6-4921-ad82-e5062e59a471";
         createReceiver(userId, "NO 93 8601 1117949");
+        createReceiver(userId, "NO 93 8601 1117950");
+        createReceiver("73a79008-ebd6-4921-ad82-e5062e59a472", "NO 93 8601 1117950");
 
         // Execute
         UserReceiversResult result = receiverServiceTest.listUserReceivers(userId, 0, 10);
